@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.API.Data;
 using SmartSchool.API.Models;
-using System.Linq;
 
 namespace SmartSchool.API.Controllers
 {
@@ -10,25 +8,25 @@ namespace SmartSchool.API.Controllers
     [Route("api/[controller]")]
     public class AlunoController : ControllerBase
     {
-        private readonly DataContext context;
         private readonly IRepository repository;
 
-        public AlunoController(DataContext context, IRepository repository)
+        public AlunoController(IRepository repository)
         {
-            this.context = context;
             this.repository = repository;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(this.context.Alunos);
+            var resultado = this.repository.ListarAlunos(true);
+
+            return Ok(resultado);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var aluno = this.context.Alunos.FirstOrDefault(a => a.Id == id);
+            var aluno = this.repository.ConsultarAlunoPorId(id);
 
             if (aluno == null)
             {
@@ -38,28 +36,13 @@ namespace SmartSchool.API.Controllers
             return Ok(aluno);
         }
 
-        [HttpGet("byName")]
-        public IActionResult GetByName(string nome, string sobrenome)
-        {
-            var aluno = this.context.Alunos.FirstOrDefault(a => 
-                a.Nome.Contains(nome) && a.Sobrenome.Contains(sobrenome)
-            );
-
-            if (aluno == null)
-            {
-                return BadRequest("O aluno não foi encontrado");
-            }
-
-            return Ok(aluno);
-        }
-
         // api/aluno
         [HttpPost]
         public IActionResult Post(Aluno aluno)
         {
-            this.repository.Add(aluno);
+            this.repository.Incluir(aluno);
 
-            if (this.repository.SaveChanges())
+            if (this.repository.Efetivar())
             {
                 return Ok(aluno);
             }
@@ -71,48 +54,63 @@ namespace SmartSchool.API.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, Aluno aluno)
         {
-            var alunoEncontrado = this.context.Alunos.AsNoTracking().FirstOrDefault(a => a.Id == id);
+            var alunoEncontrado = this.repository.ConsultarAlunoPorId(id);
 
             if (alunoEncontrado == null)
             {
                 return BadRequest("Aluno não encontrado");
             }
 
-            this.context.Update(aluno);
-            this.context.SaveChanges();
+            this.repository.Atualizar(aluno);
 
-            return Ok(aluno);
+            if (this.repository.Efetivar())
+            {
+                return Ok(aluno);
+            }
+
+            return BadRequest("Aluno não atualizado!");
         }
 
         // api/aluno
         [HttpPatch("{id}")]
         public IActionResult Patch(int id, Aluno aluno)
         {
-            var alunoEncontrado = this.context.Alunos.AsNoTracking().FirstOrDefault(a => a.Id == id);
+            var alunoEncontrado = this.repository.ConsultarAlunoPorId(id);
 
             if (alunoEncontrado == null)
             {
                 return BadRequest("Aluno não encontrado");
             }
 
-            this.context.Update(aluno);
-            this.context.SaveChanges();
+            this.repository.Atualizar(aluno);
 
-            return Ok(aluno);
+            if (this.repository.Efetivar())
+            {
+                return Ok(aluno);
+            }
+
+            return BadRequest("Aluno não atualizado!");
         }
 
         // api/aluno
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var aluno = this.context.Alunos.FirstOrDefault(a => a.Id == id);
+            var aluno = this.repository.ConsultarAlunoPorId(id);
+
             if (aluno == null)
             {
                 return BadRequest("Aluno não encontrado");
             }
-            this.context.Remove(aluno);
-            this.context.SaveChanges();
-            return Ok();
+
+            this.repository.Excluir(aluno);
+
+            if (this.repository.Efetivar())
+            {
+                return Ok(aluno);
+            }
+
+            return BadRequest("Aluno não excluído!");
         }
     }
 }
