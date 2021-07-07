@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SmartSchool.API.Data;
 using SmartSchool.API.DTOs;
 using SmartSchool.API.Models;
@@ -11,33 +12,21 @@ namespace SmartSchool.API.Controllers
     public class AlunoController : ControllerBase
     {
         private readonly IRepository repository;
+        private readonly IMapper mapper;
 
-        public AlunoController(IRepository repository)
+        public AlunoController(IRepository repository, IMapper mapper)
         {
             this.repository = repository;
+            this.mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
             var alunos = this.repository.ListarAlunos(true);
-            var alunosRetorno = new List<AlunoDTO>();
+            var alunosDTO = this.mapper.Map<IEnumerable<AlunoDTO>>(alunos);
 
-            foreach (var aluno in alunos)
-            {
-                alunosRetorno.Add(new AlunoDTO()
-                {
-                    Id = aluno.Id,
-                    Matricula = aluno.Matricula,
-                    Nome = $"{aluno.Nome} {aluno.Sobrenome}",
-                    Telefone = aluno.Telefone,
-                    //DataNascimento = aluno.DataNascimento,
-                    DataInicioMatricula = aluno.DataInicioMatricula,
-                    Ativo = aluno.Ativo
-                });
-            }
-
-            return Ok(alunosRetorno);
+            return Ok(alunosDTO);
         }
 
         [HttpGet("{id}")]
@@ -50,18 +39,22 @@ namespace SmartSchool.API.Controllers
                 return BadRequest("Aluno não encontrado");
             }
 
-            return Ok(aluno);
+            var alunoDTO = this.mapper.Map<AlunoDTO>(aluno);
+
+            return Ok(alunoDTO);
         }
 
         // api/aluno
         [HttpPost]
-        public IActionResult Post(Aluno aluno)
+        public IActionResult Post(AlunoDTO alunoDTO)
         {
+            var aluno = this.mapper.Map<Aluno>(alunoDTO);
+
             this.repository.Incluir(aluno);
 
             if (this.repository.Efetivar())
             {
-                return Ok(aluno);
+                return Created($"/api/aluno/{alunoDTO.Id}", mapper.Map<AlunoDTO>(aluno));
             }
 
             return BadRequest("Aluno não cadastrado!");
@@ -69,20 +62,22 @@ namespace SmartSchool.API.Controllers
 
         // api/aluno
         [HttpPut("{id}")]
-        public IActionResult Put(int id, Aluno aluno)
+        public IActionResult Put(int id, AlunoDTO alunoDTO)
         {
-            var alunoEncontrado = this.repository.ConsultarAlunoPorId(id);
+            var aluno = this.repository.ConsultarAlunoPorId(id);
 
-            if (alunoEncontrado == null)
+            if (aluno == null)
             {
                 return BadRequest("Aluno não encontrado");
             }
+
+            this.mapper.Map(alunoDTO, aluno);
 
             this.repository.Atualizar(aluno);
 
             if (this.repository.Efetivar())
             {
-                return Ok(aluno);
+                return Created($"/api/aluno/{alunoDTO.Id}", mapper.Map<AlunoDTO>(aluno));   
             }
 
             return BadRequest("Aluno não atualizado!");
@@ -90,20 +85,22 @@ namespace SmartSchool.API.Controllers
 
         // api/aluno
         [HttpPatch("{id}")]
-        public IActionResult Patch(int id, Aluno aluno)
+        public IActionResult Patch(int id, AlunoDTO alunoDTO)
         {
-            var alunoEncontrado = this.repository.ConsultarAlunoPorId(id);
+            var aluno = this.repository.ConsultarAlunoPorId(id);
 
-            if (alunoEncontrado == null)
+            if (aluno == null)
             {
                 return BadRequest("Aluno não encontrado");
             }
+
+            this.mapper.Map(alunoDTO, aluno);
 
             this.repository.Atualizar(aluno);
 
             if (this.repository.Efetivar())
             {
-                return Ok(aluno);
+                return Created($"/api/aluno/{alunoDTO.Id}", mapper.Map<AlunoDTO>(aluno));
             }
 
             return BadRequest("Aluno não atualizado!");

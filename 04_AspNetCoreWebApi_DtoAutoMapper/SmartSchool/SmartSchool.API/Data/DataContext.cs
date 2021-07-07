@@ -62,7 +62,8 @@ namespace SmartSchool.API.Data
                     new Aluno(4, 4, "Luiza", "Maria", "6565659", DateTime.Parse("28/05/2005")),
                     new Aluno(5, 5, "Lucas", "Machado", "565685415", DateTime.Parse("28/05/2005")),
                     new Aluno(6, 6, "Pedro", "Alvares", "456454545", DateTime.Parse("28/05/2005")),
-                    new Aluno(7, 7, "Paulo", "José", "9874512", DateTime.Parse("28/05/2005"))
+                    new Aluno(7, 7, "Paulo", "José", "9874512", DateTime.Parse("28/05/2005")),
+                    new Aluno(8, 8, "Danilo", "Silva", "988666138", DateTime.Parse("30/11/1989"))
                 });
 
             builder.Entity<AlunoDisciplina>()
@@ -89,7 +90,8 @@ namespace SmartSchool.API.Data
                     new AlunoDisciplina() {AlunoId = 7, DisciplinaId = 2 },
                     new AlunoDisciplina() {AlunoId = 7, DisciplinaId = 3 },
                     new AlunoDisciplina() {AlunoId = 7, DisciplinaId = 4 },
-                    new AlunoDisciplina() {AlunoId = 7, DisciplinaId = 5 }
+                    new AlunoDisciplina() {AlunoId = 7, DisciplinaId = 5 },
+                    new AlunoDisciplina() {AlunoId = 8, DisciplinaId = 8 }
                 });
         }
     }
