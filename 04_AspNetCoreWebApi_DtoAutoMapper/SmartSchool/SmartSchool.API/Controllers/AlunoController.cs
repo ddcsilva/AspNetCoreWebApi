@@ -46,7 +46,7 @@ namespace SmartSchool.API.Controllers
 
         // api/aluno
         [HttpPost]
-        public IActionResult Post(AlunoDTO alunoDTO)
+        public IActionResult Post(AlunoRegisterDTO alunoDTO)
         {
             var aluno = this.mapper.Map<Aluno>(alunoDTO);
 
@@ -62,7 +62,7 @@ namespace SmartSchool.API.Controllers
 
         // api/aluno
         [HttpPut("{id}")]
-        public IActionResult Put(int id, AlunoDTO alunoDTO)
+        public IActionResult Put(int id, AlunoRegisterDTO alunoDTO)
         {
             var aluno = this.repository.ConsultarAlunoPorId(id);
 
@@ -85,7 +85,7 @@ namespace SmartSchool.API.Controllers
 
         // api/aluno
         [HttpPatch("{id}")]
-        public IActionResult Patch(int id, AlunoDTO alunoDTO)
+        public IActionResult Patch(int id, AlunoRegisterDTO alunoDTO)
         {
             var aluno = this.repository.ConsultarAlunoPorId(id);
 
